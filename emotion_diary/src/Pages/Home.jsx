@@ -1,10 +1,56 @@
-import { useSearchParams } from "react-router-dom";
+import Header from "../Components/Header";
+import Button from "../Components/Button";
+import DiaryList from "../Components/DiaryList";
+import { useState, useContext } from "react";
+import { DiaryStateContext } from "../App";
 
+const getMonthlyData = (pivotDate, data) => {
+  const beginTime = new Date(
+    pivotDate.getFullYear(),
+    pivotDate.getMonth(),
+    1,
+    0,
+    0,
+    0
+  ).getTime();
+
+  const endTime = new Date(
+    pivotDate.getFullYear(),
+    pivotDate.getMonth() + 1,
+    0,
+    23,
+    59,
+    59
+  ).getTime();
+
+  return data.filter(
+    (item) => beginTime <= item.createdDate && item.createdDate <= endTime
+  );
+};
 const Home = () => {
-  const [params, setParams] = useSearchParams();
-  console.log(params.get("value"));
+  const data = useContext(DiaryStateContext);
+  const [pivotDate, setPivotDate] = useState(new Date());
 
-  return <div>Home</div>;
+  const monthlyData = getMonthlyData(pivotDate, data);
+  console.log(monthlyData);
+
+  const onIncreaseMonth = () => {
+    setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth() + 1));
+  };
+  const onDecreaseMonth = () => {
+    setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth() - 1));
+  };
+
+  return (
+    <div>
+      <Header
+        title={`${pivotDate.getMonth() + 1} / ${pivotDate.getFullYear()}`}
+        leftChild={<Button onClick={onDecreaseMonth} text={"<"} />}
+        rightChild={<Button onClick={onIncreaseMonth} text={">"} />}
+      />
+      <DiaryList data={monthlyData} />
+    </div>
+  );
 };
 
 export default Home;

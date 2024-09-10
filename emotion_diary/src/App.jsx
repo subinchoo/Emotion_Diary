@@ -1,42 +1,108 @@
 import "./App.css";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useReducer, useRef, createContext } from "react";
+import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
-import Diary from "./Pages/Diary";
-import New from "./Pages/New";
-import Notfound from "./Pages/Notfound";
+import Diary from "./pages/Diary";
+import New from "./pages/New";
+import Edit from "./pages/Edit";
+import Notfound from "./pages/Notfound";
 
-import emotion1 from "./assets/emotion1.png";
-import emotion2 from "./assets/emotion2.png";
-import emotion3 from "./assets/emotion3.png";
-import emotion4 from "./assets/emotion4.png";
-import emotion5 from "./assets/emotion5.png";
+const mockData = [
+  {
+    id: 1,
+    createdDate: new Date("09-09-2024").getTime(),
+    emotionId: 1,
+    content: "Diary 1",
+  },
+  {
+    id: 2,
+    createdDate: new Date("08-09-2024").getTime(),
+    emotionId: 2,
+    content: "Diary 2",
+  },
+  {
+    id: 3,
+    createdDate: new Date("08-08-2024").getTime(),
+    emotionId: 3,
+    content: "Diary 3",
+  },
+];
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "CREATE":
+      return [action.data, ...state];
+    case "UPDATE":
+      return state.map((item) =>
+        String(item.id) === String(action.data.id) ? action.data : item
+      );
+    case "DELETE":
+      return state.filter((item) => String(item.id) !== String(action.id));
+    default:
+      return state;
+  }
+}
+
+export const DiaryStateContext = createContext();
+export const DiaryDispatchContext = createContext();
 
 function App() {
-  //page routing
-  const nav = useNavigate();
+  const [data, dispatch] = useReducer(reducer, mockData);
+  const idRef = useRef(3);
 
-  const onClickButton = () => nav("/new");
+  // New diary
+  const onCreate = (createdDate, emotionId, content) => {
+    dispatch({
+      type: "CREATE",
+      data: {
+        id: idRef.current++,
+        createdDate,
+        emotionId,
+        content,
+      },
+    });
+  };
+
+  // Edit diary
+  const onUpdate = (id, createdDate, emotionId, content) => {
+    dispatch({
+      type: "UPDATE",
+      data: {
+        id,
+        createdDate,
+        emotionId,
+        content,
+      },
+    });
+  };
+
+  // Delete diary
+  const onDelete = (id) => {
+    dispatch({
+      type: "DELETE",
+      id,
+    });
+  };
+
   return (
     <>
-      <div>
-        <img src={emotion1} />
-        <img src={emotion2} />
-        <img src={emotion3} />
-        <img src={emotion4} />
-        <img src={emotion5} />
-      </div>
-      <div>
-        <Link to={"/"}>Home</Link>
-        <Link to={"/new"}>New</Link>
-        <Link to={"/diary"}>Diary</Link>
-      </div>
-      <button onClick={onClickButton}>NEW PAGE</button>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/new" element={<New />} />
-        <Route path="/diary/:id" element={<Diary />} />
-        <Route path="*" element={<Notfound />} />
-      </Routes>
+      <DiaryStateContext.Provider value={data}>
+        <DiaryDispatchContext.Provider
+          value={{
+            onCreate,
+            onUpdate,
+            onDelete,
+          }}
+        >
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/new" element={<New />} />
+            <Route path="/diary/:id" element={<Diary />} />
+            <Route path="/edit/:id" element={<Edit />} />
+            <Route path="*" element={<Notfound />} />
+          </Routes>
+        </DiaryDispatchContext.Provider>
+      </DiaryStateContext.Provider>
     </>
   );
 }
