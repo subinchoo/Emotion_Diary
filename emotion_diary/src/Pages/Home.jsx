@@ -1,8 +1,10 @@
 import Header from "../components/Header";
 import Button from "../components/Button";
-import DiaryList from "../Components/DiaryList";
-import { useState, useContext } from "react";
+import DiaryList from "../components/DiaryList";
+import { useState, useContext, useEffect } from "react";
 import { DiaryStateContext } from "../App";
+import usePageTitle from "../hooks/usePageTitle";
+import { useNavigate } from "react-router-dom";
 
 const getMonthlyData = (pivotDate, data) => {
   const beginTime = new Date(
@@ -27,12 +29,21 @@ const getMonthlyData = (pivotDate, data) => {
     (item) => beginTime <= item.createdDate && item.createdDate <= endTime
   );
 };
-const Home = () => {
+const Home = (isLoading) => {
   const data = useContext(DiaryStateContext);
   const [pivotDate, setPivotDate] = useState(new Date());
+  const navigate = useNavigate();
 
+  usePageTitle(`Emotion Diary`);
   const monthlyData = getMonthlyData(pivotDate, data);
   console.log(monthlyData);
+
+  useEffect(() => {
+    if (!isLoading) {
+      // 로딩이 완료되면, 홈으로 이동
+      navigate("/"); // 로딩 완료 후 홈으로 이동
+    }
+  }, [isLoading, navigate]);
 
   const onIncreaseMonth = () => {
     setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth() + 1));
@@ -42,7 +53,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="home-background">
       <Header
         title={`${pivotDate.getMonth() + 1} / ${pivotDate.getFullYear()}`}
         leftChild={<Button onClick={onDecreaseMonth} text={"<"} />}

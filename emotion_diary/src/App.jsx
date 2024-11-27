@@ -1,11 +1,11 @@
 import "./App.css";
 import { useReducer, useRef, createContext, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Diary from "./pages/Diary";
+import Home from "./Pages/Home";
+import Diary from "./Pages/Diary";
 import New from "./Pages/New";
-import Edit from "./pages/Edit";
-import Notfound from "./pages/Notfound";
+import Edit from "./Pages/Edit";
+import Notfound from "./Pages/Notfound";
 
 function reducer(state, action) {
   let nextState;
@@ -69,7 +69,11 @@ function App() {
       type: "INIT",
       data: parsedData,
     });
-    setIsLoading(false);
+
+    // 로딩 화면 3초 유지
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
   }, []);
 
   // 새로운 일기 추가
@@ -106,8 +110,15 @@ function App() {
     });
   };
 
+  // 로딩 화면
   if (isLoading) {
-    return <div>데이터 로딩중입니다 ...</div>;
+    return (
+      <div className="loading-screen">
+        <img src="/favicon.png" alt="loading icon" />
+        <h1>How was your day?</h1>
+        <div className="spinner"></div>
+      </div>
+    );
   }
 
   return (

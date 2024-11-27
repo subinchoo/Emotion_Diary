@@ -18,7 +18,7 @@ const getStringedDate = (targetDate) => {
     date = `0${date}`;
   }
 
-  return `${date}-${month}-${year}`;
+  return `${year}-${month}-${date}`;
 };
 
 const Editor = ({ initData, onSubmit }) => {

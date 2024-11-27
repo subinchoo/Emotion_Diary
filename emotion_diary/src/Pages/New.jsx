@@ -4,10 +4,17 @@ import Editor from "../components/Editor";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { DiaryDispatchContext } from "../App";
+import usePageTitle from "../hooks/usePageTitle";
 
 const New = () => {
   const { onCreate } = useContext(DiaryDispatchContext);
   const nav = useNavigate();
+  usePageTitle("New Diary");
+
+  // useEffect(() => {
+  //   const $title = document.getElementsByTagName("title")[0];
+  //   $title.innerText = "New Diary";
+  // }, []);
 
   const onSubmit = (input) => {
     onCreate(input.createdDate.getTime(), input.emotionId, input.content);
